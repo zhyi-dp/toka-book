@@ -16,7 +16,7 @@ The PAL Checker analyzes the usage of hat sigils (`*`, `^`, `~`) across your cod
 The `^` hat enforces exclusive ownership. Ownership can be transferred via *move*:
 
 ```toka
-auto ^p = new i32(val: 42)
+auto ^p = new i32(val=42)
 auto ^q = ^p     // Ownership moves to q
 println(str(q))  // OK — q owns the value
 // println(str(p))  // ERROR — p is no longer valid
@@ -29,7 +29,7 @@ The compiler tracks the flow of ownership and rejects any code that accesses a v
 Raw pointers require explicit `unsafe` blocks:
 
 ```toka
-auto *p# = unsafe alloc i32(val: 100)
+auto *p# = unsafe alloc i32(val=100)
 p = 99             // Modify via soul (implicit dereference)
 unsafe free(p)     // Manual free in unsafe
 ```
@@ -41,7 +41,7 @@ The `unsafe` keyword signals to the PAL Checker that you are taking manual respo
 Shared pointers use runtime reference counting but are still safe:
 
 ```toka
-auto ~p = shared i32(val: 42)
+auto ~p = shared i32(val=42)
 let ~q = p
 // Both p and q can access the value
 // Freed when the last reference goes out of scope
