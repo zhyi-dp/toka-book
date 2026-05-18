@@ -1,18 +1,46 @@
 # Ownership & Hats
 
-Ownership in Toka is governed by the Hat Principle. Let's explore how hats track ownership and how the PAL Checker enforces safety.
+Ownership in Toka is governed by the Hat Principle. Each hat sigil communicates a different ownership model directly through syntax.
 
-## The Basic Rule
+## Three Ownership Models
 
-Every value in Toka has exactly **one owner** at any time. The hat (`^`) token indicates who holds the ownership address:
+Toka defines three pointer types, each with distinct ownership semantics:
+
+### `*` — Raw Pointer (Unsafe)
+
+Raw pointers require explicit `unsafe` or `alloc` to create and manage:
 
 ```toka
-auto data = create_buffer(1024)
-// `data` owns the buffer
-
-^x.process(data)    
-// The hat `^x` passes ownership of `data` to the function
+auto *p# = unsafe alloc i32(val: 42)
+p = 99            // Write via soul (implicit dereference)
+let val = p       // Read via soul
+unsafe free(p)    // Manual deallocation
 ```
+
+Raw pointers are used when interfacing with C code or implementing low-level data structures.
+
+### `^` — Unique Pointer (Move Semantics)
+
+Unique pointers provide exclusive ownership. Only one `^` can point to a given resource at any time. Ownership is transferred via **move**:
+
+```toka
+auto ^p = new i32(val: 42)
+auto ^q = ^p    // Ownership moves from p to q
+// p is now invalid — compile error if accessed
+```
+
+The `^` token operates like Rust's `Box` or C++'s `std::unique_ptr`. When a unique pointer goes out of scope, its resource is automatically freed.
+
+### `~` — Shared Pointer (Reference-Counted)
+
+Shared pointers enable multiple owners via reference counting:
+
+```toka
+auto ~p = shared i32(val: 42)
+let ~q = p   // Reference count incremented
+```
+
+The resource is freed when the last `~` reference goes out of scope.
 
 ## Moving vs Copying
 
@@ -21,8 +49,8 @@ auto data = create_buffer(1024)
 ```toka
 auto a = 42
 auto b = a   // b gets a copy
-^a = 99      // a is now 99
-println(str(b)) // still 42
+a = 99       // a is unchanged
+// b is still 42
 ```
 
 **Complex types** (like `string`, `Vec`, custom `shape` types) are **moved** by default:
@@ -33,45 +61,50 @@ auto moved = original   // ownership transfers to `moved`
 // `original` is no longer valid here
 ```
 
-## Explicit Borrowing with `&`
+## Borrowing (In-Place Capture)
 
-If you want to lend a value without transferring ownership, use the **borrow** (`&`) token:
+Toka uses **implicit borrow** for function parameters by default. You don't need special sigils for standard borrowing:
 
 ```toka
-auto data = create_buffer(1024)
-
-fn process(data&) {
-    // Can read data but not keep it
+fn process(data: Buffer) {
+    // data is an immutable borrow (in-place capture)
     println("size: " + str(data.len))
 }
 
-process(&data)   // Lend it temporarily
-// `data` is still valid here — we only borrowed it
+let buf = create_buffer(1024)
+process(buf)   // Implicit immutable borrow
+// buf is still valid here
 ```
 
-## Ownership Transfer via Hat
-
-When you pass a value through a hat, ownership transfers:
+For **mutable borrows**, use `#` on the parameter name:
 
 ```toka
-fn consume(^data) {
-    // `data` is now ours to manage
-    println("got: " + data)
-    // `data` is freed when this function ends
+fn mutate(data#: Buffer) {
+    data.append("more data")
 }
 
-auto item = "precious resource"
-consume(^item)
-// `item` is no longer valid here — ownership was transferred
+let buf# = create_buffer(1024)
+mutate(buf#)   // Mutable borrow — show # at call site
+```
+
+## Explicit Local Borrow with `&`
+
+The `&` sigil is used when **explicitly declaring a local borrow pointer** or returning a reference:
+
+```toka
+fn borrow_example(data: &Buffer) -> &str {
+    // & denotes a reference type
+    return &data[0..5]
+}
 ```
 
 ## The PAL Checker in Action
 
 The PAL Checker verifies at compile time that:
 
-1. **No use after move** — You cannot access a value after its ownership has been transferred
-2. **No dangling references** — Borrowed references (`&`) cannot outlive the borrowed value
+1. **No use after move** — A `^` value cannot be accessed after ownership transfer
+2. **No dangling references** — Borrowed references cannot outlive the borrowed value
 3. **No double-free** — Each value is freed exactly once
-4. **No data races** — Mutable access (`^`) is exclusive; shared access (`&`) is read-only
+4. **No data races** — Mutable access is exclusive; shared access is read-only
 
 All of this happens **without any lifetime annotations**. The Hat Principle makes ownership visible in the syntax itself.

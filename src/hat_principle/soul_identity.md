@@ -1,59 +1,62 @@
 # Soul & Identity
 
-To understand the Hat Principle deeply, you need to understand the distinction between a value's **soul** and its **identity**.
+Toka's Hat Principle introduces a clear distinction between a pointer's **handle** (the container) and its **soul** (the underlying data). Understanding this split is key to mastering Toka's memory model.
 
-## The Soul (The Value Itself)
+## Handle vs. Soul
 
-A variable's **soul** is its value. When you write:
+Every pointer in Toka has two aspects:
 
-```toka
-auto x = 42
-auto y = x
-```
+- **Handle (The Hat)**: The identifier *with* its sigil (`^p`, `*p`, `~p`). This represents the pointer container itself — the memory location that holds the address.
+- **Soul (The Data)**: The identifier *without* the sigil (`p`). This represents the underlying value being pointed to.
 
-The soul (value `42`) is copied from `x` to `y`. Both now hold the same value independently.
+## Implicit Dereferencing
 
-## The Identity (Where It Lives)
-
-A variable's **identity** is its location in memory. The hat (`^`) token gives you access to this identity:
+Toka's killer feature is **implicit dereferencing**: you never need a `*` or `->` operator to access the data behind a pointer. Just use the soul directly:
 
 ```toka
-auto x = 42
-auto addr^ = ^x  // You now have a hat-pointer to x's location
+auto ^p = new Point(x: 10, y: 20)
+p.x = 30       // No dereference operator needed!
+let sum = p.x + p.y
 ```
 
-## Soul vs Identity in Practice
+This is a massive ergonomic improvement over C (`p->x = 30`) or Rust (`(*p).x = 30`).
+
+## The Three Hats
+
+Each hat sigil carries different ownership semantics:
+
+### `*` — Raw Pointer
+Low-level, unsafe pointer. Requires `unsafe` keyword or explicit `alloc`:
 
 ```toka
-auto a = 100
-auto b = a      // b gets a copy of the soul (value 100)
-^a = 200        // Change a's value through its hat
-println(str(a)) // 200
-println(str(b)) // 100 — b is unchanged, it has its own soul
+auto *p# = unsafe alloc i32(val: 42)
+p = 100           // Modify soul directly
+unsafe free(p)    // Manual cleanup
 ```
 
-## Why This Matters
+### `^` — Unique Pointer
+Exclusive ownership of a heap-allocated resource. Created with `new`:
 
-Traditional languages hide the distinction between value and identity:
+```toka
+auto ^p = new i32(val: 42)
+auto ^q = ^p      // Ownership moves to q
+// p is now invalid — use after move is a compile error
+```
 
-- **C/C++**: Pointers are explicit but dangerous — no safety guarantees
-- **Java/Python**: Everything is a reference — you can't tell if you're getting a copy or a link
-- **Rust**: Ownership and borrowing solve this but require complex lifetime annotations
+### `~` — Shared Pointer
+Reference-counted, shared ownership:
 
-Toka's approach keeps things simple:
+```toka
+auto ~p = shared i32(val: 42)
+```
 
-1. **The bare name** always gives you the value (soul)
-2. **The hat** (`^`) always gives you the address (identity)
-3. **The PAL Checker** verifies at compile time that you're using hats safely
+## Identity and Address
 
-## Hats Are Not C Pointers
+To get the raw memory address of a local variable, use the `*(expr)` syntax:
 
-A common question: "Isn't `^` just like `*` in C?"
+```toka
+auto a# = 42
+auto *raw_ptr = *(a)  // Get the physical address of `a`
+```
 
-No. The difference is fundamental:
-
-- In C, `*` is a raw, unconstrained pointer — you can do anything with it
-- In Toka, `^` is a **tracked hat** — the PAL Checker ensures every hat access is valid
-- You cannot forge a hat, cast from integers to hats, or create dangling hats
-
-This gives you the power of pointers with the safety of a managed language.
+The hat (`^`) does **not** mean "address of". It specifically denotes the unique pointer container.
