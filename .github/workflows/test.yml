@@ -13,24 +13,11 @@ jobs:
       - name: Checkout Book
         uses: actions/checkout@v4
 
-      - name: Checkout Toka Compiler
-        uses: actions/checkout@v4
-        with:
-          repository: 'zhyi-dp/tokalang'
-          path: 'tokalang'
-
-      - name: Install CMake & Ninja
-        run: sudo apt-get update && sudo apt-get install -y cmake ninja-build
-
-      - name: Build Toka Compiler
-        working-directory: ./tokalang
-        run: |
-          mkdir build && cd build
-          cmake -G Ninja ..
-          ninja
+      - name: Install Toka
+        run: curl -fsSL https://tokalang.dev/install.sh | bash
 
       - name: Test Book Snippets
         run: |
-          export PATH="$PWD/tokalang/build/bin:$PATH"
-          export TOKA_LIB="$PWD/tokalang/lib"
+          export PATH="$HOME/.toka/bin:$PATH"
+          export TOKA_LIB="$HOME/.toka/lib"
           python3 scripts/test_book.py
