@@ -52,7 +52,19 @@ hljs.registerLanguage('toka', function(hljs) {
   };
 });
 
-// Trigger re-scan after registering the custom language
-if (typeof hljs !== 'undefined') {
-  hljs.highlightAll();
-}
+// Manually re-highlight all toka code blocks after registering the language
+// This works across all highlight.js versions (v9, v10, v11+)
+(function() {
+  var blocks = document.querySelectorAll('pre code');
+  for (var i = 0; i < blocks.length; i++) {
+    var block = blocks[i];
+    var cls = block.className || '';
+    if (cls.indexOf('language-toka') !== -1 || cls.indexOf('language-tk') !== -1) {
+      if (typeof hljs.highlightElement === 'function') {
+        hljs.highlightElement(block);
+      } else if (typeof hljs.highlightBlock === 'function') {
+        hljs.highlightBlock(block);
+      }
+    }
+  }
+})();
