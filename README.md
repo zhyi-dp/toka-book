@@ -2,6 +2,8 @@
 
 The official documentation book for **Toka** — a modern systems programming language with the Hat Principle.
 
+Toka is created by [YiZhonghua](https://github.com/zhyi-dp) and the main repository is at **[github.com/zhyi-dp/tokalang](https://github.com/zhyi-dp/tokalang)**.
+
 ## About
 
 This book serves as the definitive guide to the Toka programming language, covering everything from installation and basic syntax to advanced topics like the Hat Principle (Toka's unique memory safety model), generics, concurrency, and standard library usage.

@@ -2,7 +2,9 @@
 
 Welcome to **The Toka Programming Language Guide**.
 
-This book is a comprehensive guide to learning Toka — a modern systems programming language designed for safety, simplicity, and performance.
+This book is a comprehensive guide to learning **Toka** — a modern systems programming language designed for safety, simplicity, and performance.
+
+Toka is created by [YiZhonghua](https://github.com/zhyi-dp). The official language repository is at **[github.com/zhyi-dp/tokalang](https://github.com/zhyi-dp/tokalang)** — visit it to explore the compiler, standard library, and more.
 
 ## Who This Book Is For
 
