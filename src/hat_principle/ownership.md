@@ -11,7 +11,7 @@ Toka defines three pointer types, each with distinct ownership semantics:
 Raw pointers require explicit `unsafe` or `alloc` to create and manage:
 
 ```toka
-auto *p# = unsafe alloc i32(val: 42)
+auto *p# = unsafe alloc i32(val=42)
 p = 99            // Write via soul (implicit dereference)
 let val = p       // Read via soul
 unsafe free(p)    // Manual deallocation
@@ -24,7 +24,7 @@ Raw pointers are used when interfacing with C code or implementing low-level dat
 Unique pointers provide exclusive ownership. Only one `^` can point to a given resource at any time. Ownership is transferred via **move**:
 
 ```toka
-auto ^p = new i32(val: 42)
+auto ^p = new i32(val=42)
 auto ^q = ^p    // Ownership moves from p to q
 // p is now invalid — compile error if accessed
 ```
@@ -36,7 +36,7 @@ The `^` token operates like Rust's `Box` or C++'s `std::unique_ptr`. When a uniq
 Shared pointers enable multiple owners via reference counting:
 
 ```toka
-auto ~p = shared i32(val: 42)
+auto ~p = shared i32(val=42)
 let ~q = p   // Reference count incremented
 ```
 

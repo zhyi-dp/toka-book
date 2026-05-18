@@ -29,7 +29,7 @@ Each hat sigil carries different ownership semantics:
 Low-level, unsafe pointer. Requires `unsafe` keyword or explicit `alloc`:
 
 ```toka
-auto *p# = unsafe alloc i32(val: 42)
+auto *p# = unsafe alloc i32(val=42)
 p = 100           // Modify soul directly
 unsafe free(p)    // Manual cleanup
 ```
@@ -38,7 +38,7 @@ unsafe free(p)    // Manual cleanup
 Exclusive ownership of a heap-allocated resource. Created with `new`:
 
 ```toka
-auto ^p = new i32(val: 42)
+auto ^p = new i32(val=42)
 auto ^q = ^p      // Ownership moves to q
 // p is now invalid — use after move is a compile error
 ```
@@ -47,7 +47,7 @@ auto ^q = ^p      // Ownership moves to q
 Reference-counted, shared ownership:
 
 ```toka
-auto ~p = shared i32(val: 42)
+auto ~p = shared i32(val=42)
 ```
 
 ## Identity and Address

@@ -22,7 +22,7 @@ One of Toka's most elegant design features is the **Handle vs. Soul** distinctio
 When you want to read or modify the value a pointer points to, you simply operate on the **soul** directly — no dereference token needed:
 
 ```toka
-auto *p# = unsafe alloc i32(val: 100)
+auto *p# = unsafe alloc i32(val=100)
 // p (without *) refers to the underlying value
 p = 200          // Modifies the allocated integer directly
 let val = p      // Reads the value without explicit dereference
