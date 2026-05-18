@@ -1,0 +1,35 @@
+import std/io::{println}
+
+// ANCHOR: raw_ptr
+fn raw_ptr_example() {
+    unsafe {
+        auto *p# = alloc i32
+        p = 99
+        println("raw: {}", p)
+    }
+}
+// ANCHOR_END: raw_ptr
+
+// ANCHOR: unique_ptr
+fn unique_ptr_example() {
+    auto ^p = new i32(42)
+    auto ^q = ^p
+    println("unique: {}", q)
+}
+// ANCHOR_END: unique_ptr
+
+// ANCHOR: move_copy
+fn move_copy_example() {
+    auto a# = 42
+    auto b = a
+    a = 99
+    println("a: {}, b: {}", a, b)
+}
+// ANCHOR_END: move_copy
+
+fn main() -> i32 {
+    raw_ptr_example()
+    unique_ptr_example()
+    move_copy_example()
+    return 0
+}

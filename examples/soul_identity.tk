@@ -1,0 +1,52 @@
+import std/io::{println}
+
+shape Point (
+    x: i32,
+    y: i32
+)
+
+// ANCHOR: handle_soul
+fn handle_soul_example() {
+    auto ^p# = new Point(x=10, y=20)
+    p.x = 30
+    auto sum = p.x + p.y
+    println("sum: {}", sum)
+}
+// ANCHOR_END: handle_soul
+
+// ANCHOR: implicit_deref
+fn implicit_deref_example() {
+    unsafe {
+        auto *p# = alloc i32
+        p = 100
+        auto val = p
+        println("val: {}", val)
+    }
+}
+// ANCHOR_END: implicit_deref
+
+// ANCHOR: raw_pointer
+fn raw_pointer_example() {
+    unsafe {
+        auto *p# = alloc i32
+        p = 42
+        println("raw: {}", p)
+    }
+}
+// ANCHOR_END: raw_pointer
+
+// ANCHOR: unique_pointer
+fn unique_pointer_example() {
+    auto ^p = new i32(42)
+    auto ^q = ^p
+    println("unique: {}", q)
+}
+// ANCHOR_END: unique_pointer
+
+fn main() -> i32 {
+    handle_soul_example()
+    implicit_deref_example()
+    raw_pointer_example()
+    unique_pointer_example()
+    return 0
+}

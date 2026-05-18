@@ -1,0 +1,21 @@
+import std/io::{println}
+
+// ANCHOR: no_use_after_move
+fn main() -> i32 {
+    auto ^p = new i32(42)
+    auto ^q = ^p
+    // p is no longer valid after move
+    println("q: {}", q)
+
+    // ANCHOR_END: no_use_after_move
+
+    // ANCHOR: unsafe_ops
+    unsafe {
+        auto *p# = alloc i32
+        p = 99
+        println("val: {}", p)
+    }
+    // ANCHOR_END: unsafe_ops
+
+    return 0
+}
